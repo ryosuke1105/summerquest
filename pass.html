@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北九州市 夏休みクエスト</title>
+    
+    <style id="pass-style">
+        body { display: none !important; }
+    </style>
+    <script>
+        (function() {
+            var password = prompt("クエストにさんかするための パスワードを にゅうりょくしてね！");
+            if (password === "hotlimit") {
+                document.getElementById('pass-style').innerHTML = "";
+            } else {
+                alert("パスワードが ちがうようだ...。");
+                document.body.innerHTML = "<h1>クエストに さんか できません...</h1>";
+                document.body.style.display = "block";
+            }
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --header-start: #4fc3f7;  
+            --header-end: #81d4fa;    
+            --bg-color: #FFF59D;      
+            --primary-color: #ff9800; 
+            --primary-dark: #e65100;  
+            --card-bg: #FFFFFF;
+            --border-color: #212121;  
+        }
+        
+        body {
+            font-family: 'DotGothic16', sans-serif;
+            background-color: var(--bg-color); 
+            color: var(--border-color); 
+            margin: 0; padding: 0; line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-start), var(--header-end));
+            color: white; padding: 25px; 
+            text-align: center; border-bottom: 6px solid var(--border-color);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.2); 
+        }
+        header h1 { margin: 0; font-size: 2rem; letter-spacing: 3px; }
+        header p { margin: 8px 0 0 0; font-size: 1.1rem; opacity: 0.9; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        .quest-btn {
+            font-family: 'DotGothic16', sans-serif; border: 3px solid var(--border-color);
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+            box-shadow: 3px 3px 0 var(--border-color); transition: all 0.05s; outline: none;
+        }
+        .quest-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0 var(--border-color); }
+
+        .top-actions { text-align: center; margin-bottom: 25px; }
+        .toggle-fav-mode { background-color: #fff9c4; padding: 12px 24px; font-size: 1.1rem; color: #333; }
+        .toggle-fav-mode.active { background-color: #ffeb3b; color: #333; }
+
+        .filter-section {
+            background: white; padding: 20px; border: 4px solid var(--border-color);
+            border-radius: 8px; box-shadow: 5px 5px 0 rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        .filter-group { margin-bottom: 20px; }
+        .filter-group h4 { 
+            margin: 0 0 12px 0; font-size: 1.15rem; color: var(--primary-dark); 
+            border-bottom: 3px dashed #b0bec5; display: inline-block; padding-bottom: 4px;
+        }
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .filter-btn { background-color: #f5f5f5; padding: 8px 14px; font-size: 1rem; color: #333;}
+        .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-dark); }
+        
+        .filter-date-picker {
+            border: 3px solid var(--border-color); padding: 6px 12px; border-radius: 6px;
+            font-size: 1rem; font-family: inherit; color: #333; background-color: #fff; 
+            cursor: pointer; box-shadow: 3px 3px 0 var(--border-color); transition: all 0.1s;
+        }
+
+        #filter-main-category .filter-btn { padding: 12px 16px; font-size: 1.1rem; background-color: #fffde7; color: var(--border-color); }
+        #filter-main-category .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-dark); }
+
+        .passport-banner { margin-top: 15px; text-align: center; background-color: #fff9c4; border: 3px dashed #fbc02d; padding: 15px; border-radius: 8px; }
+        .passport-banner a { display: inline-block; background-color: #fff176; color: #333; padding: 10px 20px; margin-top: 8px; text-decoration: none; }
+
+        .filter-btn-outside { background-color: #ffe0b2; color: var(--border-color); }
+        .filter-btn-outside.active { background-color: #ff7043; color: white; border-color: #d84315; }
+
+        .result-count { margin-bottom: 18px; font-size: 1.3rem; font-weight: bold; color: var(--primary-dark); text-align: center; }
+
+        .card-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .card { 
+            background-color: var(--card-bg); border: 4px solid var(--border-color);
+            border-radius: 8px; overflow: hidden; box-shadow: 5px 5px 0 rgba(0,0,0,0.05); position: relative; 
+            background-image: url('image/back2.png');
+            background-repeat: repeat;
+            background-size: 150px; 
+            background-position: center;
+        }
+        
+        .card img { 
+            width: 100%; height: 180px; object-fit: contain;
+            border-bottom: 4px solid var(--border-color); background-color: #fff; 
+        }
+        
+        .fav-btn {
+            position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.9);
+            border: 3px solid var(--border-color); border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem;
+            cursor: pointer; box-shadow: 2px 2px 0 var(--border-color); color: #ccc; 
+            display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.05s;
+        }
+        .fav-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--border-color); }
+        .fav-btn.active { color: #fbc02d; } 
+
+        .card-body { padding: 15px; background-color: rgba(255, 255, 255, 0.85); }
+        
+        .badge { 
+            display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; 
+            font-weight: bold; color: white; margin-bottom: 10px; border: 2px solid var(--border-color);
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+        }
+        .badge-イベント { background-color: #ff7043; } 
+        .badge-常設 { background-color: #66bb6a; }   
+        .badge-お得 { background-color: #fbc02d; color: #333; text-shadow: none;} 
+        .badge-お得にお出かけ { background-color: #ec407a; } 
+        .badge-ボランティア { background-color: #ab47bc; } 
+        
+        .card-title { margin: 0 0 10px 0; font-size: 1.35rem; padding-right: 50px; line-height: 1.4; color: #111; }
+        .card-info-text { font-size: 1rem; margin: 8px 0; color: #333; }
+        .outside-area-text { color: #d84315; font-weight: bold; }
+        .address-link { color: var(--primary-dark); text-decoration: none; border-bottom: 2px dashed var(--primary-dark); }
+        
+        .passport-info { background-color: rgba(255, 253, 231, 0.9); border: 3px solid #fbc02d; padding: 10px; font-size: 0.95rem; margin-top: 15px; border-radius: 6px; }
+        .btn-link { display: block; background-color: #e3f2fd; color: #0277bd; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1.1rem; margin-top: 20px; text-align: center; }
+        .btn-link:active { background-color: #bbdefb; }
+
+        .treasure-box {
+            position: fixed; bottom: 25px; right: 25px;
+            background-color: var(--primary-color);
+            border: 4px solid var(--border-color); border-radius: 50%;
+            width: 75px; height: 75px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2.3rem;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+            cursor: pointer; z-index: 100;
+            animation: floatBox 2s ease-in-out infinite;
+            transition: transform 0.05s;
+        }
+        .treasure-box:active { transform: scale(0.9); box-shadow: 0 0 0 var(--border-color); }
+        @keyframes floatBox {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 200;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color); 
+            border: 6px solid var(--border-color); border-radius: 12px;
+            padding: 20px; width: 90%; max-width: 450px;
+            position: relative;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .close-modal-btn {
+            position: absolute; top: -18px; right: -18px;
+            background-color: #fff; color: var(--border-color);
+            border: 4px solid var(--border-color); border-radius: 50%;
+            width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.05s;
+        }
+        .close-modal-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-color); }
+
+        .modal-title {
+            color: var(--primary-dark); text-align: center; margin-top: 0; font-size: 1.5rem;
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.8); 
+            margin-bottom: 15px;
+            background-color: rgba(255,255,255,0.7); 
+            display: inline-block; padding: 5px 15px; border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚔️ 北九州市 夏休みクエスト 🛡️</h1>
+    <p>〜 きみだけの ぼうけんのしょ を つくろう 〜</p>
+</header>
+
+<div class="container">
+    <div class="top-actions">
+        <button id="toggle-fav-mode" class="toggle-fav-mode quest-btn">🎒 ぼうけんのしょ をみる</button>
+    </div>
+
+    <div class="filter-section" id="filter-controls">
+        <div class="filter-group">
+            <h4>▶ どの クエスト に いく？（複数えらべるぞ）</h4>
+            <div class="filter-buttons" id="filter-main-category">
+                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                <button class="filter-btn quest-btn" data-val="イベント">イベント</button>
+                <button class="filter-btn quest-btn" data-val="学べる">学べる</button>
+                <button class="filter-btn quest-btn" data-val="お得">パスポートでお得</button>
+                <button class="filter-btn quest-btn" data-val="お得にお出かけ！">お得に移動！</button>
+            </div>
+            <div id="passport-banner" class="passport-banner" style="display: none;">
+                <p style="margin: 0 0 5px 0; font-size: 0.9rem; color: #555;">たいしょうしせつで パスポートをみせると いいことがあるぞ！</p>
+                <a href="https://www.city.kitakyushu.lg.jp/kyouiku/file_0012.html" target="_blank" rel="noopener noreferrer" class="quest-btn">🎫 パスポートの つかいかた ↗</a>
+            </div>
+        </div>
+
+        <div class="filter-group" id="group-month">
+            <h4>▶ いつ しゅっぱつ する？</h4>
+            <div class="filter-buttons" id="filter-month">
+                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                <button class="filter-btn quest-btn" data-val="今日">今日</button>
+                <button class="filter-btn quest-btn" data-val="明日">明日</button>
+                <button class="filter-btn quest-btn" data-val="今週末">今週末</button>
+                <button class="filter-btn quest-btn" data-val="7月">7月</button>
+                <button class="filter-btn quest-btn" data-val="8月">8月</button>
+                
+                <span style="font-size: 0.9rem; margin-left: 5px;">または カレンダーから:</span>
+                <input type="date" id="filter-specific-date" class="filter-date-picker">
+            </div>
+        </div>
+
+        <div class="filter-group" id="group-ku">
+            <h4>▶ どの エリア を たんさく する？</h4>
+            <div class="filter-buttons" id="filter-ku">
+                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                <button class="filter-btn quest-btn" data-val="門司区">門司区</button>
+                <button class="filter-btn quest-btn" data-val="小倉北区">小倉北区</button>
+                <button class="filter-btn quest-btn" data-val="小倉南区">小倉南区</button>
+                <button class="filter-btn quest-btn" data-val="若松区">若松区</button>
+                <button class="filter-btn quest-btn" data-val="八幡東区">八幡東区</button>
+                <button class="filter-btn quest-btn" data-val="八幡西区">八幡西区</button>
+                <button class="filter-btn quest-btn" data-val="戸畑区">戸畑区</button>
+                <button class="filter-btn filter-btn-outside quest-btn" data-val="市外">🚗 遠出する(市外)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-count" id="result-count"></div>
+    <div class="card-grid" id="card-container">
+        <p>セーブデータを よみこみちゅう...</p>
+    </div>
+</div>
+
+<div id="treasure-box" class="treasure-box">
+    🎁
+</div>
+<div style="position: fixed; bottom: 110px; right: 20px; z-index: 100; text-align: center;">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdPORO7Fkmb4SXQ3xXArK7DnXCJnxXeFmNnb1i1xAfUhI6oIg/viewform?usp=publish-editor" 
+           target="_blank" 
+           class="quest-btn" 
+           style="display: block; background-color: #ff5252; color: white; padding: 10px 15px; text-decoration: none; font-size: 0.8rem; box-shadow: 2px 2px 0 var(--border-color);">
+           改善点の<br>記入はこちら！
+        </a>
+    </div>
+<div id="treasure-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button id="close-modal" class="close-modal-btn">✖</button>
+        <div style="text-align: center;">
+            <h2 class="modal-title">✨ レア・クエスト はっけん！ ✨</h2>
+        </div>
+        <div id="treasure-card-container"></div>
+    </div>
+</div>
+
+<script>
+    let allEventData = [];
+    let currentMainCategory = 'すべて'; 
+    let currentFilters = { mainCategory: [], ku: [], month: [], specificDate: '' };
+    let favoriteIDs = JSON.parse(localStorage.getItem('kitaq_favorites')) || [];
+    let isFavMode = false; 
+
+    const kitaqWards = ['門司区', '小倉北区', '小倉南区', '若松区', '八幡東区', '八幡西区', '戸畑区'];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCSVData();
+        setupFilterButtons();
+        setupDatePicker(); 
+        setupFavToggleBtn();
+        setupTreasureBox(); 
+    });
+
+    function loadCSVData() {
+        Papa.parse('data.csv', {
+            download: true, header: true, skipEmptyLines: true,
+            complete: function(results) {
+                allEventData = results.data;
+                applyFilters();
+            },
+            error: function(err) {
+                document.getElementById('card-container').innerHTML = '<p>データのよみこみに しっぱいした！</p>';
+            }
+        });
+    }
+
+    function applyFilters() {
+        const monthGroup = document.getElementById('group-month');
+        const passportBanner = document.getElementById('passport-banner');
+
+        const isOnlyOtoku = currentFilters.mainCategory.length === 1 && currentFilters.mainCategory[0] === 'お得';
+        const includesOtoku = currentFilters.mainCategory.includes('お得');
+
+        if (isOnlyOtoku) {
+            monthGroup.style.display = 'none'; 
+        } else {
+            monthGroup.style.display = 'block'; 
+        }
+
+        if (includesOtoku) {
+            passportBanner.style.display = 'block'; 
+        } else {
+            passportBanner.style.display = 'none';  
+        }
+
+        const filteredData = allEventData.filter(item => {
+            let matchMain = true; 
+            if (currentFilters.mainCategory.length > 0) {
+                matchMain = currentFilters.mainCategory.some(c => {
+                    if (c === 'イベント') return item.種別 === 'イベント';
+                    if (c === '学べる') return item.カテゴリ === '学ぶ';
+                    if (c === 'お得') return (item.種別 === 'お得' || item.カテゴリ === 'お得');
+                    if (c === 'お得にお出かけ！') return item.種別 === 'お得にお出かけ！';
+                    return false;
+                });
+            }
+
+            let matchKu = true;
+            if (currentFilters.ku.length > 0) {
+                matchKu = currentFilters.ku.some(selectedKu => {
+                    if (item.区 === '全て') return true; 
+                    if (selectedKu === '市外') return !kitaqWards.includes(item.区);
+                    return item.区 === selectedKu;
+                });
+            }
+
+            let matchMonth = true;
+            if (!isOnlyOtoku) {
+                if (currentFilters.specificDate !== '') {
+                    matchMonth = checkSpecificDateMatch(item, currentFilters.specificDate);
+                } else if (currentFilters.month.length > 0) {
+                    matchMonth = currentFilters.month.some(m => checkDateMatch(item, m));
+                }
+            }
+
+            let matchFav = true;
+            if (isFavMode) matchFav = favoriteIDs.includes(item.ID);
+
+            return matchMain && matchKu && matchMonth && matchFav;
+        });
+
+        renderCards(filteredData);
+    }
+
+    function checkSpecificDateMatch(item, dateStr) {
+        if (item.種別 === '常設' || item.開催期間 === '常設' || item.種別 === 'お得' || item.カテゴリ === 'お得' || item.種別 === 'お得にお出かけ！') return true; 
+        const targetDate = new Date(dateStr); 
+        const itemPeriod = item.開催期間 || '';
+        const m = targetDate.getMonth() + 1;
+        const d = targetDate.getDate();
+        const checkDateStr = `${m}/${d}`; 
+        if (itemPeriod.includes(checkDateStr)) return true;
+        const range = itemPeriod.split(/[～~-]/);
+        if (range.length === 2) {
+            let startStr = range[0].trim();
+            let endStr = range[1].trim();
+            let year = targetDate.getFullYear();
+            if(!startStr.includes('/')) startStr = `${m}/${startStr}`; 
+            if(!endStr.includes('/')) endStr = `${startStr.split('/')[0]}/${endStr}`; 
+            let startDate = new Date(`${year}/${startStr}`);
+            let endDate = new Date(`${year}/${endStr}`);
+            let checkDate = new Date(`${year}/${m}/${d}`);
+            return (checkDate >= startDate && checkDate <= endDate);
+        }
+        return false;
+    }
+
+    function checkDateMatch(item, filterVal) {
+        if (item.種別 === '常設' || item.開催期間 === '常設' || item.種別 === 'お得' || item.カテゴリ === 'お得' || item.種別 === 'お得にお出かけ！') return true;
+        let today = new Date();
+        const itemPeriod = item.開催期間 || '';
+        const itemMonth = (item.対象月 || '').replace('７', '7').replace('８', '8');
+        if (filterVal === '7月' || filterVal === '8月') return itemMonth.includes(filterVal);
+        const targetDates = [];
+        if (filterVal === '今日') {
+            targetDates.push(new Date(today));
+        } else if (filterVal === '明日') {
+            let tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            targetDates.push(tomorrow);
+        } else if (filterVal === '今週末') {
+            let currentDay = today.getDay(); 
+            let distances = [5 - currentDay, 6 - currentDay, 7 - currentDay]; 
+            distances.forEach(d => {
+                let dDate = new Date(today);
+                dDate.setDate(today.getDate() + d);
+                targetDates.push(dDate);
+            });
+        }
+        return targetDates.some(date => {
+            const m = date.getMonth() + 1;
+            const d = date.getDate();
+            const dateStr = `${m}/${d}`; 
+            if (itemPeriod.includes(dateStr)) return true;
+            const range = itemPeriod.split(/[～~-]/);
+            if (range.length === 2) {
+                let startStr = range[0].trim();
+                let endStr = range[1].trim();
+                let year = date.getFullYear();
+                if(!startStr.includes('/')) startStr = `${m}/${startStr}`; 
+                if(!endStr.includes('/')) endStr = `${startStr.split('/')[0]}/${endStr}`; 
+                let startDate = new Date(`${year}/${startStr}`);
+                let endDate = new Date(`${year}/${endStr}`);
+                let checkDate = new Date(`${year}/${m}/${d}`);
+                return (checkDate >= startDate && checkDate <= endDate);
+            }
+            return false;
+        });
+    }
+
+    function setupFilterButtons() {
+        const groups = [ { id: 'filter-main-category', key: 'mainCategory' }, { id: 'filter-month', key: 'month' }, { id: 'filter-ku', key: 'ku' } ];
+        groups.forEach(group => {
+            const container = document.getElementById(group.id);
+            const buttons = container.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const clickedVal = e.target.getAttribute('data-val');
+                    if (group.key === 'month') {
+                        document.getElementById('filter-specific-date').value = '';
+                        currentFilters.specificDate = '';
+                    }
+                    if (clickedVal === 'すべて') {
+                        buttons.forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        currentFilters[group.key] = []; 
+                    } else {
+                        container.querySelector('[data-val="すべて"]').classList.remove('active');
+                        e.target.classList.toggle('active');
+                        if (currentFilters[group.key].includes(clickedVal)) {
+                            currentFilters[group.key] = currentFilters[group.key].filter(v => v !== clickedVal);
+                        } else {
+                            currentFilters[group.key].push(clickedVal);
+                        }
+                        if (currentFilters[group.key].length === 0) {
+                            container.querySelector('[data-val="すべて"]').classList.add('active');
+                        }
+                    }
+                    applyFilters();
+                });
+            });
+        });
+    }
+
+    function setupDatePicker() {
+        const datePicker = document.getElementById('filter-specific-date');
+        const monthButtons = document.querySelectorAll('#filter-month .filter-btn');
+        datePicker.addEventListener('change', (e) => {
+            const selectedDate = e.target.value; 
+            if (selectedDate) {
+                monthButtons.forEach(b => b.classList.remove('active'));
+                currentFilters.month = [];
+                currentFilters.specificDate = selectedDate;
+                applyFilters();
+            } else {
+                document.querySelector('#filter-month [data-val="すべて"]').classList.add('active');
+                currentFilters.specificDate = '';
+                applyFilters();
+            }
+        });
+    }
+
+    function resetAllFilters() {
+        currentFilters = { mainCategory: [], ku: [], month: [], specificDate: '' };
+        document.getElementById('filter-specific-date').value = ''; 
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            if(btn.getAttribute('data-val') === 'すべて') btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    function setupFavToggleBtn() {
+        const toggleBtn = document.getElementById('toggle-fav-mode');
+        toggleBtn.addEventListener('click', (e) => {
+            isFavMode = !isFavMode; e.target.classList.toggle('active');
+            if (isFavMode) {
+                e.target.textContent = '🔙 すべての クエスト にもどる';
+                resetAllFilters();
+            } else {
+                e.target.textContent = '🎒 ぼうけんのしょ をみる';
+            }
+            applyFilters();
+        });
+    }
+
+    function generateCardHTML(item) {
+        const isFav = favoriteIDs.includes(item.ID);
+        const starClass = isFav ? 'active' : '';
+        const starText = isFav ? '★' : '☆';
+        let imageHTML = '';
+        if (item.写真 && item.写真.trim() !== '') {
+            let imgSrc = item.写真.trim();
+            if (!imgSrc.startsWith('http') && !imgSrc.startsWith('image/')) {
+                imgSrc = 'image/' + imgSrc;
+            }
+            imageHTML = `<img src="${imgSrc}" alt="${item.名称}">`;
+        }
+        let passportHTML = '';
+        if (item.種別 === 'お得' && item.文化パスポート && item.文化パスポート.trim() !== '') {
+            passportHTML = `<div class="passport-info"><strong>🎫 パスポートの ていじで：</strong><br>${item.文化パスポート}</div>`;
+        }
+        const cleanBadgeClass = item.種別.replace('！', '');
+        let areaDisplayHTML = '';
+        if (item.区 === '全て') {
+            areaDisplayHTML = `<p class="card-info-text">📍 <strong>エリア:</strong> 北九州市内全域（その他）</p>`;
+        } else if (kitaqWards.includes(item.区)) {
+            areaDisplayHTML = `<p class="card-info-text">📍 <strong>エリア:</strong> ${item.区}</p>`;
+        } else {
+            areaDisplayHTML = `<p class="card-info-text outside-area-text">🚗 <strong>エリア:</strong> ${item.区}</p>`;
+        }
+        let locationHTML = '';
+        if (item.開催場所名 && item.開催場所名.trim() !== '') {
+            locationHTML = `<p class="card-info-text">🏫 <strong>ばしょ:</strong> ${item.開催場所名}</p>`;
+        }
+        let periodHTML = '';
+        if (item.開催期間 && item.開催期間.trim() !== '' && item.種別 !== 'お得' && item.カテゴリ !== 'お得' && item.種別 !== 'お得にお出かけ！') {
+            periodHTML = `<p class="card-info-text">📅 <strong>きかん:</strong> ${item.開催期間}</p>`;
+        }
+        let addressHTML = '';
+        if (item.住所 && item.住所.trim() !== '') {
+            const encodedAddress = encodeURIComponent(item.住所);
+            const mapURL = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+            addressHTML = `<p class="card-info-text">🗺️ <strong>じゅうしょ:</strong> <a href="${mapURL}" target="_blank" rel="noopener noreferrer" class="address-link">${item.住所} ↗</a></p>`;
+        }
+        let urlHTML = '';
+        if (item.詳細URL && item.詳細URL.trim() !== '') {
+            urlHTML = `<a href="${item.詳細URL}" target="_blank" rel="noopener noreferrer" class="btn-link quest-btn">🌐 くわしくみる ↗</a>`;
+        }
+        return `<div class="card"><button class="fav-btn ${starClass}" data-id="${item.ID}">${starText}</button>${imageHTML}<div class="card-body"><span class="badge badge-${cleanBadgeClass}">${item.種別}</span><h3 class="card-title">${item.名称}</h3>${areaDisplayHTML}${locationHTML}${periodHTML}${addressHTML}${passportHTML}${urlHTML}</div></div>`;
+    }
+
+    function setupTreasureBox() {
+        const treasureBox = document.getElementById('treasure-box');
+        const modal = document.getElementById('treasure-modal');
+        const closeBtn = document.getElementById('close-modal');
+        const treasureContainer = document.getElementById('treasure-card-container');
+        treasureBox.addEventListener('click', () => {
+            if (allEventData.length === 0) return; 
+            const pickupCandidates = allEventData.filter(item => item.種別 === 'イベント');
+            if (pickupCandidates.length > 0) {
+                const randomIdx = Math.floor(Math.random() * pickupCandidates.length);
+                const pickupItem = pickupCandidates[randomIdx];
+                treasureContainer.innerHTML = generateCardHTML(pickupItem);
+                setupFavButtonsForContainer(treasureContainer);
+                modal.style.display = 'flex';
+            } else {
+                alert('たからばこは からっぽだった！');
+            }
+        });
+        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    }
+
+    function setupFavButtonsForContainer(container) {
+        container.querySelectorAll('.fav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                if (favoriteIDs.includes(id)) {
+                    favoriteIDs = favoriteIDs.filter(favId => favId !== id);
+                } else {
+                    favoriteIDs.push(id);
+                }
+                localStorage.setItem('kitaq_favorites', JSON.stringify(favoriteIDs));
+                applyFilters();
+                const isFav = favoriteIDs.includes(id);
+                e.target.classList.toggle('active', isFav);
+                e.target.textContent = isFav ? '★' : '☆';
+            });
+        });
+    }
+
+    function renderCards(data) {
+        const container = document.getElementById('card-container');
+        const countDisplay = document.getElementById('result-count');
+        container.innerHTML = ''; 
+        countDisplay.textContent = `▶ みつかった クエスト: ${data.length} こ`;
+        if (data.length === 0) {
+            container.innerHTML = '<p>じょうけんにあう クエストは みつからなかった！</p>';
+            return;
+        }
+        data.forEach(item => { container.innerHTML += generateCardHTML(item); });
+        setupFavButtonsForContainer(container);
+    }
+</script>
+
+</body>
+</html>
