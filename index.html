@@ -5,28 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>北九州市 夏休みクエスト</title>
     
-    <style id="pass-style">
-        body { display: none !important; }
-    </style>
-    <script>
-        (function() {
-            var password = prompt("クエストにさんかするための パスワードを にゅうりょくしてね！");
-            if (password === "hotlimit") {
-                document.getElementById('pass-style').innerHTML = "";
-            } else {
-                alert("パスワードが ちがうようだ...。");
-                document.body.innerHTML = "<h1>クエストに さんか できません...</h1>";
-                document.body.style.display = "block";
-            }
-        })();
-    </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@800&family=Potta+One&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
+        /* --- クエスト風＆夏デザイン --- */
         :root {
             --header-start: #4fc3f7;  
             --header-end: #81d4fa;    
@@ -42,18 +27,124 @@
             background-color: var(--bg-color); 
             color: var(--border-color); 
             margin: 0; padding: 0; line-height: 1.6;
-            min-height: 100vh;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--header-start), var(--header-end));
-            color: white; padding: 25px; 
-            text-align: center; border-bottom: 6px solid var(--border-color);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.2); 
+        /* --- ウェルカム画面のスタイル --- */
+        #welcome-page {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background: url('image/adventure-bg.jpg') center/cover no-repeat;
+            background-color: #4fc3f7; 
+            overflow: hidden;
         }
-        header h1 { margin: 0; font-size: 2rem; letter-spacing: 3px; }
-        header p { margin: 8px 0 0 0; font-size: 1.1rem; opacity: 0.9; }
+
+        #welcome-page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.4); 
+            z-index: 0;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            border-radius: 20px;
+            border: 6px solid var(--primary-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.8);
+            max-width: 90%;
+            width: 600px;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #welcome-page h1 { 
+            font-size: clamp(1.8rem, 5vw, 2.5rem); 
+            color: #e65100;
+            margin: 0 0 20px 0; 
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0 #fff, -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 5px 5px 0 rgba(0,0,0,0.2);
+        }
+
+        .welcome-message p { 
+            font-size: clamp(1rem, 3vw, 1.2rem); 
+            line-height: 1.8; 
+            color: #333;
+            margin-bottom: 15px;
+            word-break: keep-all;
+        }
+
+        .highlight-text {
+            display: inline-block;
+            font-family: 'Potta One', sans-serif;
+            font-size: clamp(2.2rem, 7vw, 3.5rem);
+            color: #ffeb3b;
+            -webkit-text-stroke: 2px #e65100;
+            text-shadow: 4px 4px 0 #e65100, 8px 8px 0 rgba(0,0,0,0.3);
+            margin: 15px 0;
+            line-height: 1.2;
+            
+            animation-name: dooonPop;
+            animation-duration: 0.8s;
+            animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        @keyframes dooonPop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.3) rotate(-5deg); opacity: 1; }
+            80% { transform: scale(0.9) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .start-btn {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            padding: 15px 40px;
+            margin-top: 10px;
+            background: linear-gradient(to bottom, #ffb74d, #ff9800);
+            color: white;
+            border: 4px solid var(--border-color);
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--border-color), 0 15px 20px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            animation: pulseBtn 1.5s infinite;
+        }
+
+        .start-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 var(--border-color);
+            animation: none;
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- 検索メイン画面のスタイル --- */
+        #quest-main {
+            padding-top: 40px; 
+            min-height: 100vh;
+        }
 
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
@@ -69,29 +160,30 @@
         .toggle-fav-mode.active { background-color: #ffeb3b; color: #333; }
 
         .filter-section {
-            background: white; padding: 20px; border: 4px solid var(--border-color);
+            background: white; padding: 15px; border: 4px solid var(--border-color);
             border-radius: 8px; box-shadow: 5px 5px 0 rgba(0,0,0,0.05); margin-bottom: 25px;
         }
-        .filter-group { margin-bottom: 20px; }
+        .filter-group { margin-bottom: 15px; }
+        .filter-group:last-child { margin-bottom: 0; }
         .filter-group h4 { 
-            margin: 0 0 12px 0; font-size: 1.15rem; color: var(--primary-dark); 
-            border-bottom: 3px dashed #b0bec5; display: inline-block; padding-bottom: 4px;
+            margin: 0 0 8px 0; font-size: 1rem; color: var(--primary-dark); 
+            border-bottom: 2px dashed #b0bec5; display: inline-block; padding-bottom: 2px;
         }
-        .filter-buttons { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-btn { background-color: #f5f5f5; padding: 8px 14px; font-size: 1rem; color: #333;}
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .filter-btn { background-color: #f5f5f5; padding: 6px 12px; font-size: 0.95rem; color: #333;}
         .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-dark); }
         
         .filter-date-picker {
-            border: 3px solid var(--border-color); padding: 6px 12px; border-radius: 6px;
-            font-size: 1rem; font-family: inherit; color: #333; background-color: #fff; 
+            border: 3px solid var(--border-color); padding: 4px 10px; border-radius: 6px;
+            font-size: 0.95rem; font-family: inherit; color: #333; background-color: #fff; 
             cursor: pointer; box-shadow: 3px 3px 0 var(--border-color); transition: all 0.1s;
         }
 
-        #filter-main-category .filter-btn { padding: 12px 16px; font-size: 1.1rem; background-color: #fffde7; color: var(--border-color); }
+        #filter-main-category .filter-btn { padding: 8px 14px; font-size: 1rem; background-color: #fffde7; color: var(--border-color); }
         #filter-main-category .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-dark); }
 
-        .passport-banner { margin-top: 15px; text-align: center; background-color: #fff9c4; border: 3px dashed #fbc02d; padding: 15px; border-radius: 8px; }
-        .passport-banner a { display: inline-block; background-color: #fff176; color: #333; padding: 10px 20px; margin-top: 8px; text-decoration: none; }
+        .passport-banner { margin-top: 10px; text-align: center; background-color: #fff9c4; border: 3px dashed #fbc02d; padding: 10px; border-radius: 8px; }
+        .passport-banner a { display: inline-block; background-color: #fff176; color: #333; padding: 8px 16px; margin-top: 5px; text-decoration: none; font-size: 0.9rem;}
 
         .filter-btn-outside { background-color: #ffe0b2; color: var(--border-color); }
         .filter-btn-outside.active { background-color: #ff7043; color: white; border-color: #d84315; }
@@ -109,8 +201,11 @@
         }
         
         .card img { 
-            width: 100%; height: 180px; object-fit: contain;
-            border-bottom: 4px solid var(--border-color); background-color: #fff; 
+            width: 100%; 
+            height: 180px; 
+            object-fit: contain; 
+            border-bottom: 4px solid var(--border-color); 
+            background-color: #fff; 
         }
         
         .fav-btn {
@@ -130,7 +225,7 @@
             text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
         }
         .badge-イベント { background-color: #ff7043; } 
-        .badge-常設 { background-color: #66bb6a; }   
+        .badge-いつでもOK { background-color: #66bb6a; }   
         .badge-お得 { background-color: #fbc02d; color: #333; text-shadow: none;} 
         .badge-お得にお出かけ { background-color: #ec407a; } 
         .badge-ボランティア { background-color: #ab47bc; } 
@@ -144,148 +239,214 @@
         .btn-link { display: block; background-color: #e3f2fd; color: #0277bd; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1.1rem; margin-top: 20px; text-align: center; }
         .btn-link:active { background-color: #bbdefb; }
 
-        .treasure-box {
-            position: fixed; bottom: 25px; right: 25px;
-            background-color: var(--primary-color);
-            border: 4px solid var(--border-color); border-radius: 50%;
-            width: 75px; height: 75px;
+        /* --- 💡 右上の電球ボタン --- */
+        .special-menu-btn {
+            position: fixed; top: 20px; right: 20px;
+            background-color: #fffde7;
+            border: 4px solid var(--border-color);
+            border-radius: 50%;
+            width: 60px; height: 60px;
             display: flex; justify-content: center; align-items: center;
-            font-size: 2.3rem;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
-            cursor: pointer; z-index: 100;
-            animation: floatBox 2s ease-in-out infinite;
-            transition: transform 0.05s;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+            cursor: pointer; z-index: 10000;
+            transition: transform 0.1s, opacity 0.4s ease;
+            outline: none;
+            opacity: 0; pointer-events: none;
         }
-        .treasure-box:active { transform: scale(0.9); box-shadow: 0 0 0 var(--border-color); }
-        @keyframes floatBox {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
+        .special-menu-btn.show { opacity: 1; pointer-events: auto; animation: pulseBulb 2s infinite; }
+        .special-menu-btn:active { transform: scale(0.9); }
+        .bulb-icon { font-size: 1.8rem; }
+
+        @keyframes pulseBulb {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 192, 45, 0.7), 4px 4px 0 rgba(0,0,0,0.15); }
+            50% { transform: scale(1.05); box-shadow: 0 0 10px 4px rgba(251, 192, 45, 0.5), 4px 4px 0 rgba(0,0,0,0.15); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 192, 45, 0), 4px 4px 0 rgba(0,0,0,0.15); }
         }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 200;
-            display: flex; justify-content: center; align-items: center;
+        /* --- 📜 コマンドウィンドウ風メニュー --- */
+        .special-menu-window {
+            position: fixed; top: 90px; right: 20px;
+            background-color: #fff;
+            border: 6px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+            z-index: 10001;
+            display: flex; flex-direction: column; gap: 15px;
+            opacity: 0; transform: translateY(-20px); pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .special-menu-window.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-        .modal-content {
-            background-color: var(--bg-color); 
-            border: 6px solid var(--border-color); border-radius: 12px;
-            padding: 20px; width: 90%; max-width: 450px;
-            position: relative;
-            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-height: 90vh; overflow-y: auto;
+        .menu-title { font-size: 1.1rem; font-weight: bold; color: var(--primary-dark); text-align: center; border-bottom: 3px double var(--border-color); padding-bottom: 8px; }
+        .menu-links { display: flex; flex-direction: column; gap: 12px; }
+        
+        .menu-item-btn {
+            font-family: 'DotGothic16', sans-serif;
+            font-size: 0.95rem; text-decoration: none; color: var(--border-color);
+            background-color: #fffde7; padding: 12px;
+            border: 3px solid var(--border-color); border-radius: 6px;
+            box-shadow: 3px 3px 0 var(--border-color);
+            transition: all 0.05s; text-align: left;
         }
-        @keyframes popIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .menu-item-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-color); }
+        .menu-item-btn:hover { background-color: #fff9c4; }
 
-        .close-modal-btn {
-            position: absolute; top: -18px; right: -18px;
+        .special-menu-close {
+            position: absolute; top: -15px; left: -15px;
             background-color: #fff; color: var(--border-color);
-            border: 4px solid var(--border-color); border-radius: 50%;
-            width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            border: 3px solid var(--border-color); border-radius: 50%;
+            width: 35px; height: 35px; font-size: 0.9rem; cursor: pointer;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
             display: flex; justify-content: center; align-items: center;
-            transition: all 0.05s;
         }
-        .close-modal-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--border-color); }
+        .special-menu-close:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--border-color); }
 
-        .modal-title {
-            color: var(--primary-dark); text-align: center; margin-top: 0; font-size: 1.5rem;
-            text-shadow: 2px 2px 0 rgba(255,255,255,0.8); 
-            margin-bottom: 15px;
-            background-color: rgba(255,255,255,0.7); 
-            display: inline-block; padding: 5px 15px; border-radius: 10px;
+        /* --- 📝 チュートリアルメッセージ --- */
+        .tutorial-toast {
+            position: fixed; left: 50%; transform: translateX(-50%) translateY(20px);
+            background-color: rgba(0, 0, 0, 0.85); color: #fff;
+            border: 4px solid var(--primary-color); border-radius: 8px;
+            padding: 15px 20px; width: 85%; max-width: 450px;
+            z-index: 10005; display: flex; justify-content: space-between; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+        .tutorial-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .tutorial-bottom { bottom: 20px; border-color: #fbc02d; } 
+        .tutorial-top { top: 90px; border-color: #4fc3f7; } 
+        .tutorial-text { font-family: 'DotGothic16', sans-serif; font-size: 1rem; line-height: 1.5; text-align: left; }
+        .tutorial-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; padding: 5px; outline: none; }
+        .tutorial-close:active { transform: scale(0.8); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>⚔️ 北九州市 夏休みクエスト 🛡️</h1>
-    <p>〜 きみだけの ぼうけんのしょ を つくろう 〜</p>
-</header>
-
-<div class="container">
-    <div class="top-actions">
-        <button id="toggle-fav-mode" class="toggle-fav-mode quest-btn">🎒 おきにいり をみる</button>
-    </div>
-
-    <div class="filter-section" id="filter-controls">
-        <div class="filter-group">
-            <h4>▶ どの クエスト に いく？（複数えらべるぞ）</h4>
-            <div class="filter-buttons" id="filter-main-category">
-                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
-                <button class="filter-btn quest-btn" data-val="イベント">イベント</button>
-                <button class="filter-btn quest-btn" data-val="学べる">学べる</button>
-                <button class="filter-btn quest-btn" data-val="お得">パスポートでお得</button>
-                <button class="filter-btn quest-btn" data-val="お得にお出かけ！">お得に移動！</button>
-            </div>
-            <div id="passport-banner" class="passport-banner" style="display: none;">
-                <p style="margin: 0 0 5px 0; font-size: 0.9rem; color: #555;">たいしょうしせつで パスポートをみせると いいことがあるぞ！</p>
-                <a href="https://www.city.kitakyushu.lg.jp/kyouiku/file_0012.html" target="_blank" rel="noopener noreferrer" class="quest-btn">🎫 パスポートの つかいかた ↗</a>
-            </div>
+<div id="welcome-page">
+    <div class="welcome-content">
+        <h1><ruby>北九州市<rt>きたきゅうしゅうし</rt></ruby> <ruby>夏休<rt>なつやす</rt></ruby>みクエスト</h1>
+        
+        <div class="welcome-message">
+            <p style="font-size: clamp(1.2rem, 4vw, 1.5rem); font-weight: bold; color: #1976d2; margin-bottom: 15px;">
+                北九州市ぜんぶが、きみの ぼうけんの舞台だ！
+            </p>
+            <p>
+                イベントや 涼しい場所、学びのスポットなど、<br>
+                レベルアップに ちょうせんできる ステージが
+            </p>
+            <div class="highlight-text">ぜんぶで 450個！</div>
+            <p>
+                も 準備されているぞ！<br>
+                さあ、きみだけの ぼうけんのしょ を つくろう！
+            </p>
         </div>
 
-        <div class="filter-group" id="group-month">
-            <h4>▶ いつ しゅっぱつ する？</h4>
-            <div class="filter-buttons" id="filter-month">
-                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
-                <button class="filter-btn quest-btn" data-val="今日">今日</button>
-                <button class="filter-btn quest-btn" data-val="明日">明日</button>
-                <button class="filter-btn quest-btn" data-val="今週末">今週末</button>
-                <button class="filter-btn quest-btn" data-val="7月">7月</button>
-                <button class="filter-btn quest-btn" data-val="8月">8月</button>
-                
-                <span style="font-size: 0.9rem; margin-left: 5px;">または カレンダーから:</span>
-                <input type="date" id="filter-specific-date" class="filter-date-picker">
-            </div>
-        </div>
-
-        <div class="filter-group" id="group-ku">
-            <h4>▶ どの エリア を たんさく する？</h4>
-            <div class="filter-buttons" id="filter-ku">
-                <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
-                <button class="filter-btn quest-btn" data-val="門司区">門司区</button>
-                <button class="filter-btn quest-btn" data-val="小倉北区">小倉北区</button>
-                <button class="filter-btn quest-btn" data-val="小倉南区">小倉南区</button>
-                <button class="filter-btn quest-btn" data-val="若松区">若松区</button>
-                <button class="filter-btn quest-btn" data-val="八幡東区">八幡東区</button>
-                <button class="filter-btn quest-btn" data-val="八幡西区">八幡西区</button>
-                <button class="filter-btn quest-btn" data-val="戸畑区">戸畑区</button>
-                <button class="filter-btn filter-btn-outside quest-btn" data-val="市外">🚗 遠出する(市外)</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="result-count" id="result-count"></div>
-    <div class="card-grid" id="card-container">
-        <p>セーブデータを よみこみちゅう...</p>
+        <button class="start-btn" onclick="document.getElementById('quest-main').scrollIntoView({behavior: 'smooth'})">
+            ▶ クエストへ 出発する！
+        </button>
     </div>
 </div>
 
-<div id="treasure-box" class="treasure-box">
-    🎁
-</div>
-<div style="position: fixed; bottom: 110px; right: 20px; z-index: 100; text-align: center;">
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdPORO7Fkmb4SXQ3xXArK7DnXCJnxXeFmNnb1i1xAfUhI6oIg/viewform?usp=publish-editor" 
-           target="_blank" 
-           class="quest-btn" 
-           style="display: block; background-color: #ff5252; color: white; padding: 10px 15px; text-decoration: none; font-size: 0.8rem; box-shadow: 2px 2px 0 var(--border-color);">
-           改善点の<br>記入はこちら！
-        </a>
+<div id="quest-main">
+    <div class="container">
+        <div class="top-actions">
+            <button id="toggle-fav-mode" class="toggle-fav-mode quest-btn">🎒 ぼうけんのしょ をみる</button>
+        </div>
+
+        <div class="filter-section" id="filter-controls">
+            <div class="filter-group">
+                <h4>▶ どの クエスト に いく？（いくつでもえらべるぞ）</h4>
+                <div class="filter-buttons" id="filter-main-category">
+                    <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                    <button class="filter-btn quest-btn" data-val="イベント">イベント</button>
+                    <button class="filter-btn quest-btn" data-val="学べる"><ruby>学<rt>まな</rt></ruby>べる</button>
+                    <button class="filter-btn quest-btn" data-val="お得">パスポートでお<ruby>得<rt>とく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="お得にお出かけ！">お<ruby>得<rt>とく</rt></ruby>に<ruby>移動<rt>いどう</rt></ruby>！</button>
+                    <button class="filter-btn quest-btn" data-val="ひんやり">ひんやりスポット ❄️</button>
+                    <button class="filter-btn quest-btn" data-val="ボランティア">ボランティア 🤝</button>
+                </div>
+                <div id="passport-banner" class="passport-banner" style="display: none;">
+                    <p style="margin: 0 0 5px 0; font-size: 0.9rem; color: #555;">たいしょうしせつで パスポートをみせると いいことがあるぞ！</p>
+                    <a href="https://www.city.kitakyushu.lg.jp/kyouiku/file_0012.html" target="_blank" rel="noopener noreferrer" class="quest-btn">🎫 パスポートの つかいかた ↗</a>
+                </div>
+            </div>
+
+            <div class="filter-group" id="group-month">
+                <h4>▶ いつ しゅっぱつ する？</h4>
+                <div class="filter-buttons" id="filter-month">
+                    <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                    <button class="filter-btn quest-btn" data-val="今日"><ruby>今日<rt>きょう</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="明日"><ruby>明日<rt>あした</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="今週末"><ruby>今週末<rt>こんしゅうまつ</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="7月">7<ruby>月<rt>がつ</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="8月">8<ruby>月<rt>がつ</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="9月">9<ruby>月<rt>がつ</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="10月">10<ruby>月<rt>がつ</rt></ruby></button>
+                    <span style="font-size: 0.85rem; margin-left: 5px;">カレンダーから:</span>
+                    <input type="date" id="filter-specific-date" class="filter-date-picker">
+                </div>
+            </div>
+
+            <div class="filter-group" id="group-ku">
+                <h4>▶ どの エリア を たんさく する？</h4>
+                <div class="filter-buttons" id="filter-ku">
+                    <button class="filter-btn quest-btn active" data-val="すべて">すべて</button>
+                    <button class="filter-btn quest-btn" data-val="門司区"><ruby>門司区<rt>もじく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="小倉北区"><ruby>小倉北区<rt>こくらきたく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="小倉南区"><ruby>小倉南区<rt>こくらみなみく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="若松区"><ruby>若松区<rt>わかまつく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="八幡東区"><ruby>八幡東区<rt>やはたひがしく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="八幡西区"><ruby>八幡西区<rt>やはたにしく</rt></ruby></button>
+                    <button class="filter-btn quest-btn" data-val="戸畑区"><ruby>戸畑区<rt>とばたく</rt></ruby></button>
+                    <button class="filter-btn filter-btn-outside quest-btn" data-val="市外">🚗 <ruby>遠出<rt>とおで</rt></ruby>する(<ruby>市外<rt>しがい</rt></ruby>)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-count" id="result-count"></div>
+        <div class="card-grid" id="card-container">
+            <p>セーブデータを よみこみちゅう...</p>
+        </div>
     </div>
+</div>
+
+<button id="special-menu-btn" class="special-menu-btn">
+    <span class="bulb-icon">💡</span>
+</button>
+
+<div id="special-menu-window" class="special-menu-window">
+    <button id="special-menu-close" class="special-menu-close">✖</button>
+    <div class="menu-title">✨ スペシャルクエスト ✨</div>
+    <div class="menu-links">
+        <a href="special.html" class="menu-item-btn">📖 推し本をギルドに報告せよ！</a>
+        <a href="https://ここにリンク先のURLを入れる" target="_blank" rel="noopener noreferrer" class="menu-item-btn">🧚 謎のエリアへワープする！</a>
+    </div>
+</div>
+
+<div id="tutorial-scroll" class="tutorial-toast tutorial-bottom">
+    <span class="tutorial-text">
+        <span style="color: #ffeb3b;">行った！行ってみたい！</span>ばしょは、<br>
+        ★マークをチェックしてね！<br>
+        君だけのぼうけんのしょが つくれるぞ！
+    </span>
+    <button class="tutorial-close" onclick="closeTutorial('tutorial-scroll')">✖</button>
+</div>
+
+<div id="tutorial-click" class="tutorial-toast tutorial-top">
+    <span class="tutorial-text">
+        ★マークを付けてくれてありがとう！<br>
+        お気に入りスポットは、ページのうえの<br>
+        <span style="color: #4fc3f7;">「🎒 ぼうけんのしょ をみる」</span>から確認できるぞ！
+    </span>
+    <button class="tutorial-close" onclick="closeTutorial('tutorial-click')">✖</button>
+</div>
+
 <div id="treasure-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <button id="close-modal" class="close-modal-btn">✖</button>
-        <div style="text-align: center;">
-            <h2 class="modal-title">✨ レア・クエスト はっけん！ ✨</h2>
-        </div>
+        <div style="text-align: center;"><h2 class="modal-title">✨ レア・クエスト はっけん！ ✨</h2></div>
         <div id="treasure-card-container"></div>
     </div>
 </div>
@@ -297,6 +458,10 @@
     let favoriteIDs = JSON.parse(localStorage.getItem('kitaq_favorites')) || [];
     let isFavMode = false; 
 
+    // チュートリアルのセーブデータ
+    let hasSeenScrollTutorial = localStorage.getItem('tutorial_scroll');
+    let hasSeenClickTutorial = localStorage.getItem('tutorial_click');
+
     const kitaqWards = ['門司区', '小倉北区', '小倉南区', '若松区', '八幡東区', '八幡西区', '戸畑区'];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -304,7 +469,29 @@
         setupFilterButtons();
         setupDatePicker(); 
         setupFavToggleBtn();
-        setupTreasureBox(); 
+
+        const menuBtn = document.getElementById('special-menu-btn');
+        const menuWindow = document.getElementById('special-menu-window');
+        const closeBtn = document.getElementById('special-menu-close');
+
+        // スクロール処理（メニュー表示 ＆ チュートリアル1表示）
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > window.innerHeight * 0.5) {
+                menuBtn.classList.add('show');
+                
+                if (!hasSeenScrollTutorial && document.querySelector('.fav-btn')) {
+                    showTutorial('tutorial-scroll');
+                    hasSeenScrollTutorial = true;
+                    localStorage.setItem('tutorial_scroll', 'true');
+                }
+            } else {
+                menuBtn.classList.remove('show');
+                menuWindow.classList.remove('open'); 
+            }
+        });
+
+        menuBtn.addEventListener('click', () => { menuWindow.classList.toggle('open'); });
+        closeBtn.addEventListener('click', () => { menuWindow.classList.remove('open'); });
     });
 
     function loadCSVData() {
@@ -347,16 +534,31 @@
                     if (c === '学べる') return item.カテゴリ === '学ぶ';
                     if (c === 'お得') return (item.種別 === 'お得' || item.カテゴリ === 'お得');
                     if (c === 'お得にお出かけ！') return item.種別 === 'お得にお出かけ！';
+                    if (c === 'ひんやり') return item.カテゴリ === 'ひんやり';
+                    if (c === 'ボランティア') return item.種別 === 'ボランティア' || item.カテゴリ === 'ボランティア';
                     return false;
                 });
             }
 
+            // 🌟 超強力なエリア検索！データのどこに書いてあっても見つけ出します
             let matchKu = true;
             if (currentFilters.ku.length > 0) {
                 matchKu = currentFilters.ku.some(selectedKu => {
-                    if (item.区 === '全て') return true; 
-                    if (selectedKu === '市外') return !kitaqWards.includes(item.区);
-                    return item.区 === selectedKu;
+                    // 全ての列のデータを一つにつなげて検索用テキストを作ります
+                    const allText = Object.values(item).join(' ');
+                    
+                    // 「全て」という文字が含まれていれば（お得な移動方法など）、無条件で表示
+                    if ((item.区 || '').includes('全て') || allText.includes('全エリア')) return true; 
+                    
+                    if (selectedKu === '市外') {
+                        return !kitaqWards.some(ward => 
+                            allText.includes(ward) || allText.includes(ward.replace('区', ''))
+                        );
+                    }
+                    
+                    // 「小倉北区」でも「小倉北」でもヒットするようにする
+                    const shortName = selectedKu.replace('区', ''); 
+                    return allText.includes(selectedKu) || allText.includes(shortName);
                 });
             }
 
@@ -405,8 +607,8 @@
         if (item.種別 === '常設' || item.開催期間 === '常設' || item.種別 === 'お得' || item.カテゴリ === 'お得' || item.種別 === 'お得にお出かけ！') return true;
         let today = new Date();
         const itemPeriod = item.開催期間 || '';
-        const itemMonth = (item.対象月 || '').replace('７', '7').replace('８', '8');
-        if (filterVal === '7月' || filterVal === '8月') return itemMonth.includes(filterVal);
+        const itemMonth = (item.対象月 || '').replace('７', '7').replace('８', '8').replace('９', '9').replace('１０', '10');
+        if (filterVal === '7月' || filterVal === '8月' || filterVal === '9月' || filterVal === '10月') return itemMonth.includes(filterVal);
         const targetDates = [];
         if (filterVal === '今日') {
             targetDates.push(new Date(today));
@@ -523,19 +725,35 @@
         const isFav = favoriteIDs.includes(item.ID);
         const starClass = isFav ? 'active' : '';
         const starText = isFav ? '★' : '☆';
+        
+        const plainName = (item.名称 || '').replace(/<[^>]+>/g, '');
+        const plainAddress = (item.住所 || '').replace(/<[^>]+>/g, '');
+        
         let imageHTML = '';
         if (item.写真 && item.写真.trim() !== '') {
             let imgSrc = item.写真.trim();
             if (!imgSrc.startsWith('http') && !imgSrc.startsWith('image/')) {
                 imgSrc = 'image/' + imgSrc;
             }
-            imageHTML = `<img src="${imgSrc}" alt="${item.名称}">`;
+            imageHTML = `<img src="${imgSrc}" alt="${plainName}">`;
         }
+        
         let passportHTML = '';
         if (item.種別 === 'お得' && item.文化パスポート && item.文化パスポート.trim() !== '') {
-            passportHTML = `<div class="passport-info"><strong>🎫 パスポートの ていじで：</strong><br>${item.文化パスポート}</div>`;
+            passportHTML = `<div class="passport-info"><strong>🎫 パスポートをみせると：</strong><br>${item.文化パスポート}</div>`;
         }
-        const cleanBadgeClass = item.種別.replace('！', '');
+
+        let coolingHTML = '';
+        if (item.カテゴリ === 'ひんやり' && item.M列 && item.M列.trim() !== '') {
+            coolingHTML = `<div class="passport-info" style="border-color: #4fc3f7; background-color: #e1f5fe;"><strong>❄️ ひんやりスポット利用案内:</strong><br>${item.M列}</div>`;
+        }
+        
+        let displayType = item.種別;
+        if (displayType === '常設') {
+            displayType = 'いつでもOK';
+        }
+        const cleanBadgeClass = (displayType || '').replace('！', '').replace(/<[^>]+>/g, '');
+        
         let areaDisplayHTML = '';
         if (item.区 === '全て') {
             areaDisplayHTML = `<p class="card-info-text">📍 <strong>エリア:</strong> 北九州市内全域（その他）</p>`;
@@ -544,47 +762,44 @@
         } else {
             areaDisplayHTML = `<p class="card-info-text outside-area-text">🚗 <strong>エリア:</strong> ${item.区}</p>`;
         }
+        
         let locationHTML = '';
         if (item.開催場所名 && item.開催場所名.trim() !== '') {
             locationHTML = `<p class="card-info-text">🏫 <strong>ばしょ:</strong> ${item.開催場所名}</p>`;
         }
+        
         let periodHTML = '';
         if (item.開催期間 && item.開催期間.trim() !== '' && item.種別 !== 'お得' && item.カテゴリ !== 'お得' && item.種別 !== 'お得にお出かけ！') {
             periodHTML = `<p class="card-info-text">📅 <strong>きかん:</strong> ${item.開催期間}</p>`;
         }
+        
         let addressHTML = '';
         if (item.住所 && item.住所.trim() !== '') {
-            const encodedAddress = encodeURIComponent(item.住所);
-            const mapURL = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+            const encodedAddress = encodeURIComponent(plainAddress);
+            const mapURL = `http://googleusercontent.com/maps.google.com/?q=${encodedAddress}`;
             addressHTML = `<p class="card-info-text">🗺️ <strong>じゅうしょ:</strong> <a href="${mapURL}" target="_blank" rel="noopener noreferrer" class="address-link">${item.住所} ↗</a></p>`;
         }
+        
         let urlHTML = '';
         if (item.詳細URL && item.詳細URL.trim() !== '') {
             urlHTML = `<a href="${item.詳細URL}" target="_blank" rel="noopener noreferrer" class="btn-link quest-btn">🌐 くわしくみる ↗</a>`;
         }
-        return `<div class="card"><button class="fav-btn ${starClass}" data-id="${item.ID}">${starText}</button>${imageHTML}<div class="card-body"><span class="badge badge-${cleanBadgeClass}">${item.種別}</span><h3 class="card-title">${item.名称}</h3>${areaDisplayHTML}${locationHTML}${periodHTML}${addressHTML}${passportHTML}${urlHTML}</div></div>`;
-    }
-
-    function setupTreasureBox() {
-        const treasureBox = document.getElementById('treasure-box');
-        const modal = document.getElementById('treasure-modal');
-        const closeBtn = document.getElementById('close-modal');
-        const treasureContainer = document.getElementById('treasure-card-container');
-        treasureBox.addEventListener('click', () => {
-            if (allEventData.length === 0) return; 
-            const pickupCandidates = allEventData.filter(item => item.種別 === 'イベント');
-            if (pickupCandidates.length > 0) {
-                const randomIdx = Math.floor(Math.random() * pickupCandidates.length);
-                const pickupItem = pickupCandidates[randomIdx];
-                treasureContainer.innerHTML = generateCardHTML(pickupItem);
-                setupFavButtonsForContainer(treasureContainer);
-                modal.style.display = 'flex';
-            } else {
-                alert('たからばこは からっぽだった！');
-            }
-        });
-        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        
+        return `<div class="card">
+                    <button class="fav-btn ${starClass}" data-id="${item.ID}">${starText}</button>
+                    ${imageHTML}
+                    <div class="card-body">
+                        <span class="badge badge-${cleanBadgeClass}">${displayType}</span>
+                        <h3 class="card-title">${item.名称}</h3>
+                        ${areaDisplayHTML}
+                        ${locationHTML}
+                        ${periodHTML}
+                        ${addressHTML}
+                        ${passportHTML}
+                        ${coolingHTML}
+                        ${urlHTML}
+                    </div>
+                </div>`;
     }
 
     function setupFavButtonsForContainer(container) {
@@ -601,6 +816,14 @@
                 const isFav = favoriteIDs.includes(id);
                 e.target.classList.toggle('active', isFav);
                 e.target.textContent = isFav ? '★' : '☆';
+
+                // チュートリアル2を表示する処理
+                if (!hasSeenClickTutorial) {
+                    closeTutorial('tutorial-scroll'); 
+                    showTutorial('tutorial-click');
+                    hasSeenClickTutorial = true;
+                    localStorage.setItem('tutorial_click', 'true');
+                }
             });
         });
     }
@@ -616,6 +839,22 @@
         }
         data.forEach(item => { container.innerHTML += generateCardHTML(item); });
         setupFavButtonsForContainer(container);
+    }
+
+    // --- チュートリアル用の便利な命令 ---
+    function showTutorial(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('show');
+            setTimeout(() => closeTutorial(id), 8000); // 8秒で自動消去
+        }
+    }
+
+    function closeTutorial(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.remove('show');
+        }
     }
 </script>
 
