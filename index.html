@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@800&family=Potta+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic_One&family=DotGothic16&family=M+PLUS+Rounded+1c:wght@800&family=Potta+One&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -28,6 +28,39 @@
             color: var(--border-color); 
             margin: 0; padding: 0; line-height: 1.6;
         }
+
+        /* --- 🔒 パスワード（合言葉）画面のスタイル --- */
+        #password-gate {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #111111; /* ゲームらしい黒背景 */
+            z-index: 20000; /* 何よりも手前に表示 */
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        /* パスワードが合っていたらフワッと消える演出用 */
+        #password-gate.unlock {
+            opacity: 0; pointer-events: none; transform: scale(1.1);
+        }
+        .gate-window {
+            background: #212121; border: 6px double #ffffff; border-radius: 8px;
+            padding: 30px 20px; width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        .gate-title { color: #ffffff; font-size: 1.5rem; margin-bottom: 25px; letter-spacing: 2px; }
+        .gate-input {
+            width: 80%; padding: 12px; font-family: 'DotGothic16', sans-serif; font-size: 1.2rem;
+            text-align: center; border: 3px solid #ffffff; background: #000000; color: #ffeb3b;
+            border-radius: 4px; outline: none; box-sizing: border-box; margin-bottom: 20px;
+        }
+        .gate-input::placeholder { color: #555555; }
+        .gate-btn {
+            font-family: 'DotGothic16', sans-serif; font-size: 1.1rem; padding: 10px 25px;
+            background: #ffffff; color: #212121; border: 3px solid #212121; border-radius: 4px;
+            cursor: pointer; box-shadow: 4px 4px 0 #777777; transition: all 0.05s;
+        }
+        .gate-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 #000; }
+        .gate-error { color: #ff5252; font-size: 0.95rem; margin-top: 15px; min-height: 1.5rem; }
 
         /* --- ウェルカム画面のスタイル --- */
         #welcome-page {
@@ -90,11 +123,15 @@
 
         .highlight-text {
             display: inline-block;
-            font-family: 'Potta One', sans-serif;
-            font-size: clamp(2.2rem, 7vw, 3.5rem);
+            font-family: 'Dela Gothic One', sans-serif;
+            font-size: clamp(2rem, 6vw, 3.2rem);
             color: #ffeb3b;
-            -webkit-text-stroke: 2px #e65100;
-            text-shadow: 4px 4px 0 #e65100, 8px 8px 0 rgba(0,0,0,0.3);
+            text-shadow: 
+                3px 3px 0 #e65100, -3px -3px 0 #e65100, 
+                -3px 3px 0 #e65100, 3px -3px 0 #e65100, 
+                3px 0 0 #e65100, -3px 0 0 #e65100, 
+                0 3px 0 #e65100, 0 -3px 0 #e65100, 
+                8px 8px 0 rgba(0,0,0,0.3);
             margin: 15px 0;
             line-height: 1.2;
             
@@ -223,12 +260,15 @@
             display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; 
             font-weight: bold; color: white; margin-bottom: 10px; border: 2px solid var(--border-color);
             text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+            margin-right: 5px; 
         }
         .badge-イベント { background-color: #ff7043; } 
         .badge-いつでもOK { background-color: #66bb6a; }   
         .badge-お得 { background-color: #fbc02d; color: #333; text-shadow: none;} 
         .badge-お得にお出かけ { background-color: #ec407a; } 
         .badge-ボランティア { background-color: #ab47bc; } 
+        .badge-学べる { background-color: #29b6f6; } 
+        .badge-ひんやり { background-color: #e1f5fe; color: #0277bd; text-shadow: none; } 
         
         .card-title { margin: 0 0 10px 0; font-size: 1.35rem; padding-right: 50px; line-height: 1.4; color: #111; }
         .card-info-text { font-size: 1rem; margin: 8px 0; color: #333; }
@@ -324,9 +364,19 @@
 </head>
 <body>
 
+<div id="password-gate">
+    <div class="gate-window">
+        <div class="gate-title">🔑 合言葉を いれよ！</div>
+        <input type="password" id="gate-input-field" class="gate-input" placeholder="あいことばを入力...">
+        <br>
+        <button id="gate-submit-btn" class="gate-btn">冒険をはじめる</button>
+        <div id="gate-error-msg" class="gate-error"></div>
+    </div>
+</div>
+
 <div id="welcome-page">
     <div class="welcome-content">
-        <h1><ruby>北九州市<rt>きたきゅうしゅうし</rt></ruby> <ruby>夏休<rt>なつやす</rt></ruby>みクエスト</h1>
+        <h1>⚔️ <ruby>北九州市<rt>きたきゅうしゅうし</rt></ruby> <ruby>夏休<rt>なつやす</rt></ruby>みクエスト 🛡️</h1>
         
         <div class="welcome-message">
             <p style="font-size: clamp(1.2rem, 4vw, 1.5rem); font-weight: bold; color: #1976d2; margin-bottom: 15px;">
@@ -452,19 +502,26 @@
 </div>
 
 <script>
+    // 🌟 パスワード（合言葉）の設定（ここをお好きな言葉に変えられます）
+    const COLLECT_PASSWORD = "bouken"; 
+
     let allEventData = [];
     let currentMainCategory = 'すべて'; 
     let currentFilters = { mainCategory: [], ku: [], month: [], specificDate: '' };
     let favoriteIDs = JSON.parse(localStorage.getItem('kitaq_favorites')) || [];
     let isFavMode = false; 
 
-    // チュートリアルのセーブデータ
+    let displayLimit = 20; 
+    let currentFilteredData = []; 
+
     let hasSeenScrollTutorial = localStorage.getItem('tutorial_scroll');
     let hasSeenClickTutorial = localStorage.getItem('tutorial_click');
 
     const kitaqWards = ['門司区', '小倉北区', '小倉南区', '若松区', '八幡東区', '八幡西区', '戸畑区'];
+    const kitaqWardsShort = kitaqWards.map(w => w.replace('区', ''));
 
     document.addEventListener('DOMContentLoaded', () => {
+        setupPasswordGate(); // パスワード画面の初期化
         loadCSVData();
         setupFilterButtons();
         setupDatePicker(); 
@@ -474,7 +531,6 @@
         const menuWindow = document.getElementById('special-menu-window');
         const closeBtn = document.getElementById('special-menu-close');
 
-        // スクロール処理（メニュー表示 ＆ チュートリアル1表示）
         window.addEventListener('scroll', () => {
             if (window.scrollY > window.innerHeight * 0.5) {
                 menuBtn.classList.add('show');
@@ -493,6 +549,37 @@
         menuBtn.addEventListener('click', () => { menuWindow.classList.toggle('open'); });
         closeBtn.addEventListener('click', () => { menuWindow.classList.remove('open'); });
     });
+
+    // 🔒 パスワード画面の処理
+    function setupPasswordGate() {
+        const gate = document.getElementById('password-gate');
+        const input = document.getElementById('gate-input-field');
+        const btn = document.getElementById('gate-submit-btn');
+        const errMsg = document.getElementById('gate-error-msg');
+
+        // すでに一度セッションでアンロックしていれば最初から隠す
+        if (sessionStorage.getItem('site_unlocked') === 'true') {
+            gate.style.display = 'none';
+            return;
+        }
+
+        function checkPassword() {
+            if (input.value === COLLECT_PASSWORD) {
+                gate.classList.add('unlock');
+                sessionStorage.setItem('site_unlocked', 'true');
+                setTimeout(() => { gate.style.display = 'none'; }, 500);
+            } else {
+                errMsg.textContent = "❌ 合言葉が ちがうようだ！";
+                input.value = "";
+                input.focus();
+            }
+        }
+
+        btn.addEventListener('click', checkPassword);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+    }
 
     function loadCSVData() {
         Papa.parse('data.csv', {
@@ -514,22 +601,24 @@
         const isOnlyOtoku = currentFilters.mainCategory.length === 1 && currentFilters.mainCategory[0] === 'お得';
         const includesOtoku = currentFilters.mainCategory.includes('お得');
 
-        if (isOnlyOtoku) {
-            monthGroup.style.display = 'none'; 
-        } else {
-            monthGroup.style.display = 'block'; 
-        }
+        monthGroup.style.display = isOnlyOtoku ? 'none' : 'block';
+        passportBanner.style.display = includesOtoku ? 'block' : 'none';
 
-        if (includesOtoku) {
-            passportBanner.style.display = 'block'; 
-        } else {
-            passportBanner.style.display = 'none';  
-        }
+        const activeMains = currentFilters.mainCategory;
+        const activeKus = currentFilters.ku;
+        const activeMonths = currentFilters.month;
+        const specificDate = currentFilters.specificDate;
+        
+        const hasMain = activeMains.length > 0;
+        const hasKu = activeKus.length > 0;
+        const hasMonth = activeMonths.length > 0;
+        const hasSpecificDate = specificDate !== '';
+        
+        const activeKusShort = activeKus.map(ku => ku.replace('区', ''));
 
-        const filteredData = allEventData.filter(item => {
-            let matchMain = true; 
-            if (currentFilters.mainCategory.length > 0) {
-                matchMain = currentFilters.mainCategory.some(c => {
+        currentFilteredData = allEventData.filter(item => {
+            if (hasMain) {
+                let matchMain = activeMains.some(c => {
                     if (c === 'イベント') return item.種別 === 'イベント';
                     if (c === '学べる') return item.カテゴリ === '学ぶ';
                     if (c === 'お得') return (item.種別 === 'お得' || item.カテゴリ === 'お得');
@@ -538,46 +627,60 @@
                     if (c === 'ボランティア') return item.種別 === 'ボランティア' || item.カテゴリ === 'ボランティア';
                     return false;
                 });
+                if (!matchMain) return false; 
             }
 
-            // 🌟 超強力なエリア検索！データのどこに書いてあっても見つけ出します
-            let matchKu = true;
-            if (currentFilters.ku.length > 0) {
-                matchKu = currentFilters.ku.some(selectedKu => {
-                    // 全ての列のデータを一つにつなげて検索用テキストを作ります
-                    const allText = Object.values(item).join(' ');
-                    
-                    // 「全て」という文字が含まれていれば（お得な移動方法など）、無条件で表示
-                    if ((item.区 || '').includes('全て') || allText.includes('全エリア')) return true; 
-                    
-                    if (selectedKu === '市外') {
-                        return !kitaqWards.some(ward => 
-                            allText.includes(ward) || allText.includes(ward.replace('区', ''))
-                        );
+            if (hasKu) {
+                const kuVal = item.区 || '';
+                const addrVal = item.住所 || '';
+                const placeVal = item.開催場所名 || '';
+                let matchKu = false;
+
+                if (kuVal.includes('全て') || addrVal.includes('全エリア') || placeVal.includes('全エリア')) {
+                    matchKu = true;
+                } else {
+                    for (let i = 0; i < activeKus.length; i++) {
+                        const sel = activeKus[i];
+                        if (sel === '市外') {
+                            let isInside = false;
+                            for (let j = 0; j < kitaqWards.length; j++) {
+                                const w = kitaqWards[j];
+                                const wS = kitaqWardsShort[j];
+                                if (kuVal.includes(w) || addrVal.includes(w) || placeVal.includes(w) ||
+                                    kuVal.includes(wS) || addrVal.includes(wS) || placeVal.includes(wS)) {
+                                    isInside = true; break;
+                                }
+                            }
+                            if (!isInside) { matchKu = true; break; }
+                        } else {
+                            const selS = activeKusShort[i];
+                            if (kuVal.includes(sel) || addrVal.includes(sel) || placeVal.includes(sel) ||
+                                kuVal.includes(selS) || addrVal.includes(selS) || placeVal.includes(selS)) {
+                                matchKu = true; break;
+                            }
+                        }
                     }
-                    
-                    // 「小倉北区」でも「小倉北」でもヒットするようにする
-                    const shortName = selectedKu.replace('区', ''); 
-                    return allText.includes(selectedKu) || allText.includes(shortName);
-                });
+                }
+                if (!matchKu) return false; 
             }
 
-            let matchMonth = true;
             if (!isOnlyOtoku) {
-                if (currentFilters.specificDate !== '') {
-                    matchMonth = checkSpecificDateMatch(item, currentFilters.specificDate);
-                } else if (currentFilters.month.length > 0) {
-                    matchMonth = currentFilters.month.some(m => checkDateMatch(item, m));
+                if (hasSpecificDate) {
+                    if (!checkSpecificDateMatch(item, specificDate)) return false;
+                } else if (hasMonth) {
+                    let matchMonth = activeMonths.some(m => checkDateMatch(item, m));
+                    if (!matchMonth) return false;
                 }
             }
 
-            let matchFav = true;
-            if (isFavMode) matchFav = favoriteIDs.includes(item.ID);
+            if (isFavMode) {
+                if (!favoriteIDs.includes(item.ID)) return false;
+            }
 
-            return matchMain && matchKu && matchMonth && matchFav;
+            return true; 
         });
 
-        renderCards(filteredData);
+        renderCards();
     }
 
     function checkSpecificDateMatch(item, dateStr) {
@@ -653,27 +756,33 @@
             const buttons = container.querySelectorAll('.filter-btn');
             buttons.forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const clickedVal = e.target.getAttribute('data-val');
+                    const currentBtn = e.currentTarget; 
+                    const clickedVal = currentBtn.getAttribute('data-val');
+                    
                     if (group.key === 'month') {
                         document.getElementById('filter-specific-date').value = '';
                         currentFilters.specificDate = '';
                     }
+                    
                     if (clickedVal === 'すべて') {
                         buttons.forEach(b => b.classList.remove('active'));
-                        e.target.classList.add('active');
+                        currentBtn.classList.add('active');
                         currentFilters[group.key] = []; 
                     } else {
                         container.querySelector('[data-val="すべて"]').classList.remove('active');
-                        e.target.classList.toggle('active');
+                        currentBtn.classList.toggle('active');
+                        
                         if (currentFilters[group.key].includes(clickedVal)) {
                             currentFilters[group.key] = currentFilters[group.key].filter(v => v !== clickedVal);
                         } else {
                             currentFilters[group.key].push(clickedVal);
                         }
+                        
                         if (currentFilters[group.key].length === 0) {
                             container.querySelector('[data-val="すべて"]').classList.add('active');
                         }
                     }
+                    displayLimit = 20; 
                     applyFilters();
                 });
             });
@@ -689,12 +798,12 @@
                 monthButtons.forEach(b => b.classList.remove('active'));
                 currentFilters.month = [];
                 currentFilters.specificDate = selectedDate;
-                applyFilters();
             } else {
                 document.querySelector('#filter-month [data-val="すべて"]').classList.add('active');
                 currentFilters.specificDate = '';
-                applyFilters();
             }
+            displayLimit = 20;
+            applyFilters();
         });
     }
 
@@ -710,13 +819,16 @@
     function setupFavToggleBtn() {
         const toggleBtn = document.getElementById('toggle-fav-mode');
         toggleBtn.addEventListener('click', (e) => {
-            isFavMode = !isFavMode; e.target.classList.toggle('active');
+            const currentBtn = e.currentTarget;
+            isFavMode = !isFavMode; 
+            currentBtn.classList.toggle('active');
             if (isFavMode) {
-                e.target.textContent = '🔙 すべての クエスト にもどる';
+                currentBtn.textContent = '🔙 すべての クエスト にもどる';
                 resetAllFilters();
             } else {
-                e.target.textContent = '🎒 ぼうけんのしょ をみる';
+                currentBtn.textContent = '🎒 ぼうけんのしょ をみる';
             }
+            displayLimit = 20;
             applyFilters();
         });
     }
@@ -754,8 +866,19 @@
         }
         const cleanBadgeClass = (displayType || '').replace('！', '').replace(/<[^>]+>/g, '');
         
+        let badgesHTML = `<span class="badge badge-${cleanBadgeClass}">${displayType}</span>`;
+        if (item.カテゴリ === '学ぶ') {
+            badgesHTML += `<span class="badge badge-学べる">学べる</span>`;
+        }
+        if (item.カテゴリ === 'ひんやり') {
+            badgesHTML += `<span class="badge badge-ひんやり">ひんやり ❄️</span>`;
+        }
+        
         let areaDisplayHTML = '';
-        if (item.区 === '全て') {
+        if (item.種別 === 'お得にお出かけ！') {
+            const naiyouText = item.内容 || item.区 || '詳細をチェックしてね！';
+            areaDisplayHTML = `<p class="card-info-text">🚌 <strong>ないよう:</strong> ${naiyouText}</p>`;
+        } else if (item.区 === '全て') {
             areaDisplayHTML = `<p class="card-info-text">📍 <strong>エリア:</strong> 北九州市内全域（その他）</p>`;
         } else if (kitaqWards.includes(item.区)) {
             areaDisplayHTML = `<p class="card-info-text">📍 <strong>エリア:</strong> ${item.区}</p>`;
@@ -769,27 +892,35 @@
         }
         
         let periodHTML = '';
-        if (item.開催期間 && item.開催期間.trim() !== '' && item.種別 !== 'お得' && item.カテゴリ !== 'お得' && item.種別 !== 'お得にお出かけ！') {
-            periodHTML = `<p class="card-info-text">📅 <strong>きかん:</strong> ${item.開催期間}</p>`;
+        if (item.開催期間 && item.開催期間.trim() !== '' && item.種別 !== 'お得' && item.カテゴリ !== 'お得') {
+            if (item.種別 === 'お得にお出かけ！') {
+                periodHTML = `<p class="card-info-text">📅 <strong>期間:</strong> ${item.開催期間}</p>`;
+            } else {
+                periodHTML = `<p class="card-info-text">📅 <strong>きかん:</strong> ${item.開催期間}</p>`;
+            }
         }
         
         let addressHTML = '';
         if (item.住所 && item.住所.trim() !== '') {
             const encodedAddress = encodeURIComponent(plainAddress);
-            const mapURL = `http://googleusercontent.com/maps.google.com/?q=${encodedAddress}`;
+            const mapURL = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
             addressHTML = `<p class="card-info-text">🗺️ <strong>じゅうしょ:</strong> <a href="${mapURL}" target="_blank" rel="noopener noreferrer" class="address-link">${item.住所} ↗</a></p>`;
         }
         
         let urlHTML = '';
         if (item.詳細URL && item.詳細URL.trim() !== '') {
-            urlHTML = `<a href="${item.詳細URL}" target="_blank" rel="noopener noreferrer" class="btn-link quest-btn">🌐 くわしくみる ↗</a>`;
+            if (item.種別 === 'お得にお出かけ！') {
+                urlHTML = `<a href="${item.詳細URL}" target="_blank" rel="noopener noreferrer" class="btn-link quest-btn">🌐 詳しくはこちら！ ↗</a>`;
+            } else {
+                urlHTML = `<a href="${item.詳細URL}" target="_blank" rel="noopener noreferrer" class="btn-link quest-btn">🌐 くわしくみる ↗</a>`;
+            }
         }
         
         return `<div class="card">
                     <button class="fav-btn ${starClass}" data-id="${item.ID}">${starText}</button>
                     ${imageHTML}
                     <div class="card-body">
-                        <span class="badge badge-${cleanBadgeClass}">${displayType}</span>
+                        ${badgesHTML}
                         <h3 class="card-title">${item.名称}</h3>
                         ${areaDisplayHTML}
                         ${locationHTML}
@@ -802,22 +933,66 @@
                 </div>`;
     }
 
+    function renderCards() {
+        const container = document.getElementById('card-container');
+        const countDisplay = document.getElementById('result-count');
+        
+        countDisplay.textContent = `▶ みつかった クエスト: ${currentFilteredData.length} こ`;
+        
+        if (currentFilteredData.length === 0) {
+            container.innerHTML = '<p>じょうけんにあう クエストは みつからなかった！</p>';
+            return;
+        }
+
+        const dataToShow = currentFilteredData.slice(0, displayLimit);
+
+        let allCardsHTML = '';
+        dataToShow.forEach(item => { 
+            allCardsHTML += generateCardHTML(item); 
+        });
+
+        if (currentFilteredData.length > displayLimit) {
+            allCardsHTML += `
+                <div style="text-align: center; margin-top: 25px;">
+                    <button id="load-more-btn" class="quest-btn" style="padding: 15px 40px; font-size: 1.2rem; background-color: #ff9800; color: white; width: 100%; max-width: 350px;">
+                        👇 もっと クエスト をさがす！
+                    </button>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = allCardsHTML;
+        setupFavButtonsForContainer(container);
+
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                displayLimit += 20; 
+                renderCards(); 
+            });
+        }
+    }
+
     function setupFavButtonsForContainer(container) {
         container.querySelectorAll('.fav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const id = e.target.getAttribute('data-id');
+                const currentBtn = e.currentTarget;
+                const id = currentBtn.getAttribute('data-id');
                 if (favoriteIDs.includes(id)) {
                     favoriteIDs = favoriteIDs.filter(favId => favId !== id);
                 } else {
                     favoriteIDs.push(id);
                 }
                 localStorage.setItem('kitaq_favorites', JSON.stringify(favoriteIDs));
-                applyFilters();
+                
                 const isFav = favoriteIDs.includes(id);
-                e.target.classList.toggle('active', isFav);
-                e.target.textContent = isFav ? '★' : '☆';
+                currentBtn.classList.toggle('active', isFav);
+                currentBtn.textContent = isFav ? '★' : '☆';
 
-                // チュートリアル2を表示する処理
+                if (isFavMode) {
+                    applyFilters();
+                }
+
                 if (!hasSeenClickTutorial) {
                     closeTutorial('tutorial-scroll'); 
                     showTutorial('tutorial-click');
@@ -828,25 +1003,11 @@
         });
     }
 
-    function renderCards(data) {
-        const container = document.getElementById('card-container');
-        const countDisplay = document.getElementById('result-count');
-        container.innerHTML = ''; 
-        countDisplay.textContent = `▶ みつかった クエスト: ${data.length} こ`;
-        if (data.length === 0) {
-            container.innerHTML = '<p>じょうけんにあう クエストは みつからなかった！</p>';
-            return;
-        }
-        data.forEach(item => { container.innerHTML += generateCardHTML(item); });
-        setupFavButtonsForContainer(container);
-    }
-
-    // --- チュートリアル用の便利な命令 ---
     function showTutorial(id) {
         const el = document.getElementById(id);
         if (el) {
             el.classList.add('show');
-            setTimeout(() => closeTutorial(id), 8000); // 8秒で自動消去
+            setTimeout(() => closeTutorial(id), 8000); 
         }
     }
 
