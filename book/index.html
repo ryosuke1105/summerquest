@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなの推し本ライブラリー</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* 全体のスタイルと背景画像の設定 */
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif;
+      height: 100vh;
+      background-image: url('bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      padding-top: 100px;    /* 上部のヘッダー用安全スペース */
+      padding-bottom: 100px; /* 下部のボタン用安全スペース */
+      justify-content: center; /* 残った中央エリアに3行の本棚を配置 */
+    }
+
+    /* チュートリアル（最初の案内）の画面スタイル */
+    #tutorial-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+
+    .tutorial-box {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 25px;
+      width: 85%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      border: 5px solid #ff9800;
+    }
+
+    .tutorial-title {
+      color: #ff6b81;
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .tutorial-text {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+
+    #start-btn {
+      background-color: #ff9800;
+      border: none;
+      padding: 15px 45px;
+      border-radius: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 5px 0 #e65100;
+      transition: transform 0.1s;
+    }
+
+    #start-btn:active {
+      transform: translateY(5px);
+      box-shadow: none;
+    }
+
+    /* かわいいヘッダーのスタイル */
+    .site-header {
+      position: absolute;
+      top: 25px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .site-title {
+      font-size: 38px;
+      margin: 0;
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-shadow: 
+        3px 3px 0 #ff6b81, -3px 3px 0 #ff6b81, 3px -3px 0 #ff6b81, -3px -3px 0 #ff6b81,
+        0px 3px 0 #ff6b81, 0px -3px 0 #ff6b81, 3px 0px 0 #ff6b81, -3px 0px 0 #ff6b81,
+        0px 8px 10px rgba(0,0,0,0.15);
+    }
+
+    /* 3行の流れを作るコンテナのスタイル */
+    .library-rows-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 100%;
+      height: auto; 
+    }
+
+    /* 各行の共通スタイル */
+    .book-row {
+      display: flex;
+      gap: 40px;
+      width: max-content;
+      padding: 5px 0;
+    }
+
+    /* アニメーションA：右から左に流れる（上段・下段） */
+    .row-left {
+      animation: scrollLeft 25s linear infinite;
+    }
+    @keyframes scrollLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-33.3333%); }
+    }
+
+    /* アニメーションB：左から右に流れる（中段） */
+    .row-right {
+      animation: scrollRight 25s linear infinite;
+    }
+    @keyframes scrollRight {
+      0% { transform: translateX(-33.3333%); }
+      100% { transform: translateX(0); }
+    }
+
+    /* マウスを乗せたときに行全体の流れを止める */
+    .book-row:hover {
+      animation-play-state: paused;
+    }
+
+    /* 本単体のデザイン */
+    .book {
+      width: 120px;
+      height: 150px;
+      border: 3px solid #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 15px 10px 10px 15px;
+      box-sizing: border-box;
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.4;
+      
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: rgba(255, 255, 255, 0.4);
+      background-blend-mode: overlay;
+    }
+
+    .book:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    /* 下の中央の「もどるボタン」 */
+    .back-btn-area {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 150;
+    }
+
+    .back-link {
+      display: inline-block;
+      background-color: #4caf50;
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .back-link:hover {
+      background-color: #388e3c;
+      transform: scale(1.05);
+    }
+
+    /* 詳細を表示するモーダル（ポップアップ） */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      width: 85%;
+      max-width: 450px;
+      text-align: left;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-item { margin-bottom: 20px; }
+    
+    .modal-label {
+      display: inline-block;
+      font-size: 13px;
+      background-color: #ff6b81;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 10px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    /* 各項目のスタイル調整 */
+    #modal-title { color: #e64a19; font-size: 24px; margin: 0; font-weight: bold; }
+    #modal-nickname { font-size: 18px; color: #333; margin: 0; font-weight: bold; }
+    #modal-age { font-size: 18px; color: #333; margin: 0; font-weight: bold; } /* 【追加】ねんだい用 */
+    #modal-comment { font-size: 18px; line-height: 1.6; margin: 0; color: #444; }
+    
+    .btn-area { text-align: center; margin-top: 25px; }
+    
+    #close-btn {
+      background-color: #ff9800;
+      border: none;
+      padding: 12px 35px;
+      border-radius: 25px;
+      font-size: 17px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    #close-btn:hover { background-color: #f57c00; }
+  </style>
+</head>
+<body>
+
+  <div id="tutorial-overlay">
+    <div class="tutorial-box">
+      <h2 class="tutorial-title">📖 あそびかた</h2>
+      <p class="tutorial-text">
+        本をクリックすると<br>
+        みんなの推しポイントが見れるぞ！<br><br>
+        みんなの推し本を見てみよう！
+      </p>
+      <button id="start-btn">スタート！</button>
+    </div>
+  </div>
+
+  <div class="back-btn-area">
+    <a href="../index_top.html" class="back-link">🏠 ホームへもどる</a>
+  </div>
+
+  <header class="site-header">
+    <h1 class="site-title">みんなの推し本ライブラリー</h1>
+  </header>
+
+  <div class="library-rows-container">
+    <div id="row-top" class="book-row row-left"></div>
+    <div id="row-mid" class="book-row row-right"></div>
+    <div id="row-bottom" class="book-row row-left"></div>
+  </div>
+
+  <div id="modal">
+    <div id="modal-content">
+      
+      <div class="modal-item">
+        <span class="modal-label">📚 本のタイトル</span>
+        <h2 id="modal-title"></h2>
+      </div>
+
+      <div class="modal-item">
+        <span class="modal-label">👤 紹介してくれた人</span>
+        <div id="modal-nickname"></div>
+      </div>
+
+      <div class="modal-item">
+        <span class="modal-label">🎒 ねんだい</span>
+        <div id="modal-age"></div>
+      </div>
+
+      <div class="modal-item">
+        <span class="modal-label">⭐ 推しポイント</span>
+        <p id="modal-comment"></p>
+      </div>
+
+      <div class="btn-area">
+        <button id="close-btn">とじる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rowTop = document.getElementById('row-top');
+    const rowMid = document.getElementById('row-mid');
+    const rowBottom = document.getElementById('row-bottom');
+    
+    let allBooksData = [];
+
+    // 用意した本の画像リスト
+    const bookCoverImages = [
+      'book1.png', 
+      'book2.png',
+      'book3.png',
+      'book4.png',
+      'book5.png',
+      'book6.png',
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCSV();
+    });
+
+    // チュートリアルのスタートボタン処理
+    document.getElementById('start-btn').addEventListener('click', () => {
+      const overlay = document.getElementById('tutorial-overlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 500);
+    });
+
+    function loadCSV() {
+      fetch('books.csv')
+        .then(response => {
+          if (!response.ok) throw new Error('CSVの読込失敗');
+          return response.text();
+        })
+        .then(text => parseCSV(text))
+        .catch(error => {
+          console.error(error);
+          alert('CSVファイルの読み込みに失敗しました。');
+        });
+    }
+
+    function parseCSV(text) {
+      const lines = text.split(/\r?\n/);
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line) {
+          const parts = line.split(',');
+          // 【変更】項目が「タイトル, ニックネーム, 年代, コメント」の4つになったので >= 4 で判定します
+          if (parts.length >= 4) {
+            allBooksData.push({
+              title: parts[0],
+              nickname: parts[1],
+              age: parts[2],      // 【追加】ねんだいデータを保存
+              comment: parts[3]   // コメントの順番が4番目にずれます
+            });
+          }
+        }
+      }
+      
+      allBooksData.sort(() => 0.5 - Math.random());
+
+      const repeatedData = [...allBooksData, ...allBooksData, ...allBooksData];
+
+      repeatedData.forEach((data, index) => {
+        if (index % 3 === 0) {
+          createBookElement(data, rowTop);
+        } else if (index % 3 === 1) {
+          createBookElement(data, rowMid);
+        } else {
+          createBookElement(data, rowBottom);
+        }
+      });
+    }
+
+    function createBookElement(data, targetRow) {
+      const bookObj = document.createElement('div');
+      bookObj.className = 'book';
+      bookObj.innerText = data.title;
+
+      const randomImg = bookCoverImages[Math.floor(Math.random() * bookCoverImages.length)];
+      bookObj.style.backgroundImage = `url('${randomImg}')`;
+
+      bookObj.addEventListener('click', () => openModal(data));
+      targetRow.appendChild(bookObj);
+    }
+
+    // モーダル処理
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalNickname = document.getElementById('modal-nickname');
+    const modalAge = document.getElementById('modal-age'); // 【追加】
+    const modalComment = document.getElementById('modal-comment');
+
+    function openModal(data) {
+      modalTitle.innerText = data.title;
+      modalNickname.innerText = data.nickname + ' さん';
+      modalAge.innerText = data.age; // 【追加】CSVに「3ねんせい」と書いてあればそのまま表示されます
+      modalComment.innerText = data.comment;
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('close-btn').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
